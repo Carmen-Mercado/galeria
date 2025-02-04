@@ -1,8 +1,8 @@
 import express, { Request, Response, NextFunction } from 'express';
-import cors from 'cors';
 import * as dotenv from 'dotenv';
 import * as functions from 'firebase-functions';
 import { initializeFirebase } from './config/firebase';
+import imagesRouter from './routes/images';
 
 // Load environment variables first
 dotenv.config();
@@ -19,14 +19,28 @@ try {
 // Create Express app
 const app = express();
 
+// Simple CORS middleware
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  next();
+});
+
 // Middleware
-app.use(cors());
 app.use(express.json());
 
 // Routes
 app.get('/', (req: Request, res: Response) => {
   res.json({ message: 'Welcome to the API' });
 });
+
+// Images routes
+app.use('/images', imagesRouter);
 
 // Error handling middleware
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
@@ -43,4 +57,22 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // Export for Firebase Functions
-export const api = functions.https.onRequest(app); 
+export const api = functions
+  .runWith({
+    timeoutSeconds: 300,
+    memory: '256MB',
+    minInstances: 0,
+  })
+  .https.onRequest((req, res) => {
+    // Set CORS headers for function
+    res.set('Access-Control-Allow-Origin', '*');
+    res.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.set('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    
+    if (req.method === 'OPTIONS') {
+      res.status(200).end();
+      return;
+    }
+    
+    return app(req, res);
+  }); 
