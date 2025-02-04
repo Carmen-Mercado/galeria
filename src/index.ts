@@ -1,5 +1,4 @@
 import express, { Request, Response, NextFunction } from 'express';
-import cors from 'cors';
 import * as dotenv from 'dotenv';
 import * as functions from 'firebase-functions';
 import { initializeFirebase } from './config/firebase';
@@ -63,8 +62,6 @@ export const api = functions
     timeoutSeconds: 300,
     memory: '256MB',
     minInstances: 0,
-    maxInstances: 10,
-    ingressSettings: "ALLOW_ALL"
   })
   .https.onRequest((req, res) => {
     // Set CORS headers for function
