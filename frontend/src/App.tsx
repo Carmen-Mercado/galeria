@@ -1,23 +1,11 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Container, CssBaseline, ThemeProvider, createTheme } from '@mui/material';
+import { Container, CssBaseline } from '@mui/material';
 import ImageCarousel from './components/ImageCarousel';
 import UploadButton from './components/UploadButton';
 import FilterMenu from './components/FilterMenu';
 import AlertBanner from './components/AlertBanner';
 import { getImages } from './services/api';
 import { Image } from './types/image';
-
-const theme = createTheme({
-  palette: {
-    mode: 'light',
-    primary: {
-      main: '#1976d2',
-    },
-    secondary: {
-      main: '#dc004e',
-    },
-  },
-});
 
 interface Filters {
   categories: string[];
@@ -90,7 +78,7 @@ function App(): JSX.Element {
   }, [fetchImages]);
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <CssBaseline />
       <Container maxWidth="lg" sx={{ py: 4 }}>
         <h1>Image Gallery</h1>
@@ -114,7 +102,7 @@ function App(): JSX.Element {
           onClose={handleCloseAlert}
         />
       </Container>
-    </ThemeProvider>
+    </>
   );
 }
 
